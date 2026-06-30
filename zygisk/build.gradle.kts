@@ -74,7 +74,7 @@ androidComponents {
         // Stage all files in a temporary directory inside 'build' before zipping
         val tempModuleDir = project.layout.buildDirectory.dir("module/${variant.name}")
         val zipFileName =
-            "Vector-v${versionNameProvider.get()}-${versionCodeProvider.get()}-$variantCapped.zip"
+            "VectorTai-v${versionNameProvider.get()}-${versionCodeProvider.get()}-$variantCapped.zip"
 
         // Using Sync ensures that stale files from previous runs are removed.
         val prepareModuleFilesTask =
@@ -137,7 +137,7 @@ androidComponents {
                             .dir("intermediates/cmake/$variantLowered/obj")
                     ) {
                         include("**/dex2oat")
-                        include("**/liboat_hook.so")
+                        include("**/libdexopt.so")
                     }
                 }
                 val dexOutPath =
@@ -151,7 +151,7 @@ androidComponents {
                         )
                 into("framework") {
                     from(dexOutPath)
-                    rename("classes.dex", "lspd.dex")
+                    rename("classes.dex", "core.dex")
                 }
                 val injected = objects.newInstance<Injected>(tempModuleDir.get().asFile.path)
                 doLast {

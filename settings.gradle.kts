@@ -16,7 +16,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Vector"
+rootProject.name = "VectorTai"
 
 include(
     ":app",

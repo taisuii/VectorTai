@@ -8,6 +8,8 @@
 #include <sys/system_properties.h>
 #include <unistd.h>
 
+#include <random>
+#include <string>
 #include <zygisk.hpp>
 
 #include "ipc_bridge.h"
@@ -42,6 +44,41 @@ enum RuntimeFlags : uint32_t {
     // Flags defined by NeoZygisk
     LATE_INJECT = 1 << 30,
 };
+
+// --- Anti-detection: randomized hooker identifiers ---
+// LSPlant stamps every generated hooker class with a fixed name prefix and a
+// fake source-file name. A constant value (the upstream "LSPHooker_" or the
+// renamed "Vector_"/"Dobby") is trivially blocklisted by anti-tamper code that
+// scans a target's class loader or inspects hook stack traces. We instead derive
+// both names once per process from std::random_device, so the strings differ
+// across every application and every reboot and cannot be matched statically.
+namespace {
+std::string MakeRandomIdentifier(size_t length) {
+    static constexpr char kHead[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    static constexpr char kBody[] =
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    std::mt19937 rng{std::random_device{}()};
+    std::uniform_int_distribution<size_t> head(0, sizeof(kHead) - 2);
+    std::uniform_int_distribution<size_t> body(0, sizeof(kBody) - 2);
+    std::string out;
+    out.reserve(length);
+    out += kHead[head(rng)];  // first character must be a letter
+    for (size_t i = 1; i < length; ++i) out += kBody[body(rng)];
+    return out;
+}
+
+// These function-local statics live for the whole process, which is exactly the
+// lifetime InitInfo needs: the strings are referenced throughout hooking.
+const std::string &RandomHookerClassName() {
+    static const std::string name = MakeRandomIdentifier(6) + "_";
+    return name;
+}
+
+const std::string &RandomHookerSourceName() {
+    static const std::string name = MakeRandomIdentifier(8);
+    return name;
+}
+}  // namespace
 
 // A simply ConfigBridge implemnetation holding obfuscation maps in memory
 using obfuscation_map_t = std::map<std::string, std::string>;
@@ -126,8 +163,8 @@ private:
             [](auto symbol) { return ElfSymbolCache::GetArt()->getSymbAddress(symbol); },
         .art_symbol_prefix_resolver =
             [](auto symbol) { return ElfSymbolCache::GetArt()->getSymbPrefixFirstAddress(symbol); },
-        .generated_class_name = "Vector_",
-        .generated_source_name = "Dobby",
+        .generated_class_name = RandomHookerClassName(),
+        .generated_source_name = RandomHookerSourceName(),
     };
 
     // State managed within the class instance for each forked process.

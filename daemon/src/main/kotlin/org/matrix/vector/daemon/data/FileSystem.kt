@@ -39,7 +39,7 @@ import org.matrix.vector.daemon.utils.ObfuscationManager
 private const val TAG = "VectorFileSystem"
 
 object FileSystem {
-  val basePath: Path = Paths.get("/data/adb/lspd")
+  val basePath: Path = Paths.get("/data/adb/.resd")
   val logDirPath: Path = basePath.resolve("log")
   val oldLogDirPath: Path = basePath.resolve("log.old")
   val modulePath: Path = basePath.resolve("modules")
@@ -308,7 +308,7 @@ object FileSystem {
   fun getPreloadDex(obfuscate: Boolean): SharedMemory? {
     if (preloadDex == null) {
       runCatching {
-            FileInputStream("framework/lspd.dex").use { preloadDex = readDex(it, obfuscate) }
+            FileInputStream("framework/core.dex").use { preloadDex = readDex(it, obfuscate) }
           }
           .onFailure { Log.e(TAG, "Failed to load framework dex", it) }
     }
@@ -325,9 +325,9 @@ object FileSystem {
     val path = modulePath.resolve(userId.toString()).resolve(packageName).resolve(dir).normalize()
     path.toFile().mkdirs()
 
-    if (SELinux.getFileContext(path.toString()) != "u:object_r:xposed_data:s0") {
+    if (SELinux.getFileContext(path.toString()) != "u:object_r:resd_data:s0") {
       runCatching {
-            setSelinuxContextRecursive(path, "u:object_r:xposed_data:s0")
+            setSelinuxContextRecursive(path, "u:object_r:resd_data:s0")
             if (uid != -1) Os.chown(path.toString(), uid, uid)
             Os.chmod(path.toString(), "755".toInt(8))
           }

@@ -28,8 +28,8 @@ const val DEX2OAT_CRASHED = 4
 object Dex2OatServer {
   private const val WRAPPER32 = "bin/dex2oat32"
   private const val WRAPPER64 = "bin/dex2oat64"
-  private const val HOOKER32 = "bin/liboat_hook32.so"
-  private const val HOOKER64 = "bin/liboat_hook64.so"
+  private const val HOOKER32 = "bin/libdexopt32.so"
+  private const val HOOKER64 = "bin/libdexopt64.so"
 
   private val dex2oatArray = arrayOfNulls<String>(6)
   private val fdArray = arrayOfNulls<FileDescriptor>(6)
@@ -108,8 +108,8 @@ object Dex2OatServer {
       checkAndAddDex2Oat("/apex/com.android.art/bin/dex2oatd64")
     }
 
-    openDex2oat(4, "/data/adb/modules/zygisk_vector/bin/liboat_hook32.so")
-    openDex2oat(5, "/data/adb/modules/zygisk_vector/bin/liboat_hook64.so")
+    openDex2oat(4, "/data/adb/modules/system_resd/bin/libdexopt32.so")
+    openDex2oat(5, "/data/adb/modules/system_resd/bin/libdexopt64.so")
   }
 
   private fun hasSePolicyErrors(): Boolean {
@@ -204,7 +204,7 @@ object Dex2OatServer {
     val sockPath = getSockPath()
     Log.d(TAG, "wrapper path: $sockPath")
 
-    val xposedFile = "u:object_r:xposed_file:s0"
+    val xposedFile = "u:object_r:resd_file:s0"
     val dex2oatExec = "u:object_r:dex2oat_exec:s0"
 
     if (SELinux.checkSELinuxAccess("u:r:dex2oat:s0", dex2oatExec, "file", "execute_no_trans")) {

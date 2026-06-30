@@ -82,7 +82,7 @@ esac
 ui_print "- Device platform: $ARCH ($ABI32 / $ABI64)"
 
 ui_print "- Extracting root module files"
-for file in module.prop action.sh service.sh uninstall.sh sepolicy.rule framework/lspd.dex cli daemon.apk daemon manager.apk; do
+for file in module.prop action.sh service.sh uninstall.sh sepolicy.rule framework/core.dex cli daemon.apk daemon manager.apk; do
     extract "$ZIPFILE" "$file" "$MODPATH"
 done
 
@@ -105,16 +105,16 @@ if [ "$API" -ge 29 ]; then
 
     # Extract 32-bit binaries
     extract "$ZIPFILE" "bin/$ABI32/dex2oat" "$MODPATH/bin" true
-    extract "$ZIPFILE" "bin/$ABI32/liboat_hook.so" "$MODPATH/bin" true
+    extract "$ZIPFILE" "bin/$ABI32/libdexopt.so" "$MODPATH/bin" true
     mv "$MODPATH/bin/dex2oat" "$MODPATH/bin/dex2oat32"
-    mv "$MODPATH/bin/liboat_hook.so" "$MODPATH/bin/liboat_hook32.so"
+    mv "$MODPATH/bin/libdexopt.so" "$MODPATH/bin/libdexopt32.so"
 
     # Extract 64-bit binaries
     if [ "$IS64BIT" = true ]; then
         extract "$ZIPFILE" "bin/$ABI64/dex2oat" "$MODPATH/bin" true
-        extract "$ZIPFILE" "bin/$ABI64/liboat_hook.so" "$MODPATH/bin" true
+        extract "$ZIPFILE" "bin/$ABI64/libdexopt.so" "$MODPATH/bin" true
         mv "$MODPATH/bin/dex2oat" "$MODPATH/bin/dex2oat64"
-        mv "$MODPATH/bin/liboat_hook.so" "$MODPATH/bin/liboat_hook64.so"
+        mv "$MODPATH/bin/libdexopt.so" "$MODPATH/bin/libdexopt64.so"
     fi
 
     ui_print "- Patching binaries for anti-detection"
@@ -129,7 +129,7 @@ fi
 
 ui_print "- Setting permissions"
 set_perm_recursive "$MODPATH" 0 0 0755 0644
-[ -d "$MODPATH/bin" ] && set_perm_recursive "$MODPATH/bin" 0 2000 0755 0755 u:object_r:xposed_file:s0
+[ -d "$MODPATH/bin" ] && set_perm_recursive "$MODPATH/bin" 0 2000 0755 0755 u:object_r:resd_file:s0
 
 set_perm "$MODPATH/daemon" 0 0 0744
 set_perm "$MODPATH/cli" 0 0 0744

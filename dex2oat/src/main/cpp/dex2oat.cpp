@@ -134,7 +134,7 @@ int main(int argc, char **argv) {
     read_int(sock_fd);  // Sync
     close(sock_fd);
 
-    // 2. Get liboat_hook.so FD
+    // 2. Get the hook library FD
     sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
     if (connect(sock_fd, reinterpret_cast<struct sockaddr *>(&sock), len)) {
         PLOGE("failed to connect to %s", sock.sun_path + 1);
@@ -147,9 +147,11 @@ int main(int argc, char **argv) {
     close(sock_fd);
 
     if (hooker_fd == -1) {
-        LOGE("failed to read liboat_hook.so");
+        LOGE("failed to read hook library");
     } else {
-        int mem_fd = syscall(__NR_memfd_create, "liboat_hook_memfd", 0);
+        // Name the memfd after ART's own JIT cache so it blends into the
+        // process maps instead of standing out as an injected library.
+        int mem_fd = syscall(__NR_memfd_create, "jit-cache", 0);
         if (mem_fd >= 0) {
             // Get the exact size of the original library
             LOGD("Copying %d as mem_fd %d", hooker_fd, mem_fd);

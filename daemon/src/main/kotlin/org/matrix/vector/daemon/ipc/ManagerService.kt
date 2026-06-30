@@ -171,7 +171,7 @@ object ManagerService : ILSPManagerService.Stub() {
     if (!file.exists()) return
 
     // Set the SELinux label that allows apps to read/write shared xposed data
-    SELinux.setFileContext(file.absolutePath, "u:object_r:xposed_file:s0")
+    SELinux.setFileContext(file.absolutePath, "u:object_r:resd_file:s0")
 
     // Change ownership to the target UID (e.g., 2000)
     runCatching { android.system.Os.chown(file.absolutePath, targetUid, targetUid) }
