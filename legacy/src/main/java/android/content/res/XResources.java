@@ -47,8 +47,8 @@ import com.android.bridge.BridgeInit;
 import com.android.bridge.callbacks.TsLayoutInflated;
 import com.android.bridge.callbacks.TsLayoutInflated.LayoutInflatedParam;
 import com.android.bridge.callbacks.BridgeCallback;
-import xposed.dummy.XResourcesSuperClass;
-import xposed.dummy.XTypedArraySuperClass;
+import com.android.bridge.res.XResourcesSuperClass;
+import com.android.bridge.res.XTypedArraySuperClass;
 
 /**
  * {@link android.content.res.Resources} subclass that allows replacing individual resources.

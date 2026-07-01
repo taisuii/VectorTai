@@ -179,14 +179,14 @@ VECTOR_DEF_NATIVE_METHOD(jobject, ResourcesHook, buildDummyClassLoader, jobject 
 
     DexBuilder dex_file;
 
-    // Create a class named "xposed.dummy.XResourcesSuperClass".
-    ClassBuilder xresource_builder{dex_file.MakeClass("xposed/dummy/XResourcesSuperClass")};
+    // Create a class named "com.android.bridge.res.XResourcesSuperClass".
+    ClassBuilder xresource_builder{dex_file.MakeClass("com/android/bridge/res/XResourcesSuperClass")};
     // Set its superclass to the one specified by the Java caller.
     xresource_builder.setSuperClass(
         TypeDescriptor::FromClassname(lsplant::JUTFString(env, resource_super_class).get()));
 
-    // Create a class named "xposed.dummy.XTypedArraySuperClass".
-    ClassBuilder xtypearray_builder{dex_file.MakeClass("xposed/dummy/XTypedArraySuperClass")};
+    // Create a class named "com.android.bridge.res.XTypedArraySuperClass".
+    ClassBuilder xtypearray_builder{dex_file.MakeClass("com/android/bridge/res/XTypedArraySuperClass")};
     // Set its superclass.
     xtypearray_builder.setSuperClass(
         TypeDescriptor::FromClassname(lsplant::JUTFString(env, typed_array_super_class).get()));

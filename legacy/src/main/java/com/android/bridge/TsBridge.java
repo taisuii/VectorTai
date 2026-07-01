@@ -100,8 +100,8 @@ public final class TsBridge {
             ClassLoader myCL = TsBridge.class.getClassLoader();
             assert myCL != null;
             dummyClassLoader = ResourcesHook.buildDummyClassLoader(myCL.getParent(), resClass.getName(), taClass.getName());
-            dummyClassLoader.loadClass("xposed.dummy.XResourcesSuperClass");
-            dummyClassLoader.loadClass("xposed.dummy.XTypedArraySuperClass");
+            dummyClassLoader.loadClass("com.android.bridge.res.XResourcesSuperClass");
+            dummyClassLoader.loadClass("com.android.bridge.res.XTypedArraySuperClass");
             TsHelpers.setObjectField(myCL, "parent", dummyClassLoader);
         } catch (Throwable throwable) {
             TsBridge.log(throwable);

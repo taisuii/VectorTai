@@ -1,4 +1,4 @@
-package xposed.dummy;
+package com.android.bridge.res;
 
 import android.content.res.Resources;
 import android.content.res.TypedArray;
