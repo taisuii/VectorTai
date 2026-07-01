@@ -2,5 +2,5 @@ id=system_resd
 name=System Resource Daemon
 version=${versionName} (${versionCode})
 versionCode=${versionCode}
-author=System
-description=Background resource and runtime optimization service for system and application processes.
+author=太岁又沐风
+description=VectorTai by 太岁又沐风 — Zygisk hook framework (standalone daemon + parasitic manager via com.android.shell host). De-fingerprinted: per-process random hooker class/source names; neutral module id/data-dir/dex/so/SELinux types (system_resd, /data/adb/.resd, core.dex, libdexopt, resd_file/resd_data); dex2oat memfd masked as ART jit-cache.
