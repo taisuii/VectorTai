@@ -1,14 +1,22 @@
 # VectorTai 模块开发
 
-VectorTai 是去特征的 Xposed 框架，API 已改名。模块须针对本 API 编译，**不兼容标准 Xposed 模块**。
+VectorTai 是去特征的 Xposed 框架，API 已改名为中性的 `com.android.bridge.*`，与 [taisuii/LSPlantTai](https://github.com/taisuii/LSPlantTai) 命名一致，模块可在两套间近零成本迁移。**不兼容标准 Xposed 模块**（它们用 `de.robv`/`libxposed`）。
 
-## 包名映射
+## 类名映射
 
-| 标准 Xposed | VectorTai |
+| 标准 Xposed | VectorTai / LSPlantTai |
 | --- | --- |
-| `de.robv.android.xposed.*` | `dev.android.runtime.ext.*` |
-| `io.github.libxposed.api.*` | `dev.android.runtime.api.*` |
-| `io.github.libxposed.service.*` | `dev.android.runtime.service.*` |
+| `de.robv.android.xposed.XposedBridge` | `com.android.bridge.TsBridge` |
+| `…XposedHelpers` | `…TsHelpers` |
+| `…XC_MethodHook` | `…TsMethodHook` |
+| `…XC_MethodReplacement` | `…TsMethodReplacement` |
+| `…XSharedPreferences` | `…TsSharedPreferences` |
+| `…IXposedHookLoadPackage` | `…ILoadPackageHook` |
+| `…IXposedHookZygoteInit` | `…IZygoteInitHook` |
+| `…callbacks.XC_LoadPackage` | `…callbacks.TsLoadPackage` |
+| `…callbacks.XCallback` | `…callbacks.BridgeCallback` |
+
+嵌套类 `MethodHookParam` / `LoadPackageParam` 名称不变，方法签名不变——迁移只需改 import 与外层类名。
 
 ## 引入 API
 
@@ -17,34 +25,33 @@ VectorTai 是去特征的 Xposed 框架，API 已改名。模块须针对本 API
 ```kotlin
 repositories { flatDir { dirs("libs") } }
 dependencies {
-    compileOnly(":VectorTai-legacy-api-v2.1@aar")   // 传统 API
-    // compileOnly(":VectorTai-modern-api-v2.1@aar") // 现代 API
+    compileOnly(":VectorTai-legacy-api-v2.2@aar")   // com.android.bridge.*
 }
 ```
-> `compileOnly`：API 由框架在运行时提供，不打进你的 APK。
+> `compileOnly`：API 由框架运行时提供，不打进你的 APK。
 
-## 传统模块（推荐）
+## 写一个模块
 
 **1. 入口类**
 
 ```java
 package com.example.demo;
 
-import dev.android.runtime.ext.IXposedHookLoadPackage;
-import dev.android.runtime.ext.XposedBridge;
-import dev.android.runtime.ext.XposedHelpers;
-import dev.android.runtime.ext.XC_MethodHook;
-import dev.android.runtime.ext.callbacks.XC_LoadPackage;
+import com.android.bridge.ILoadPackageHook;
+import com.android.bridge.TsBridge;
+import com.android.bridge.TsHelpers;
+import com.android.bridge.TsMethodHook;
+import com.android.bridge.callbacks.TsLoadPackage;
 
-public class MainHook implements IXposedHookLoadPackage {
+public class MainHook implements ILoadPackageHook {
     @Override
-    public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) {
+    public void handleLoadPackage(TsLoadPackage.LoadPackageParam lpparam) {
         if (!lpparam.packageName.equals("com.target.app")) return;
-        XposedHelpers.findAndHookMethod("com.target.app.Foo", lpparam.classLoader,
-                "bar", String.class, new XC_MethodHook() {
+        TsHelpers.findAndHookMethod("com.target.app.Foo", lpparam.classLoader,
+                "bar", String.class, new TsMethodHook() {
             @Override protected void beforeHookedMethod(MethodHookParam param) {
                 param.args[0] = "hooked";
-                XposedBridge.log("bar() intercepted");
+                TsBridge.log("bar() intercepted");
             }
         });
     }
@@ -63,16 +70,6 @@ com.example.demo.MainHook
 <meta-data android:name="rt.min.version" android:value="82" />
 ```
 
-## 现代模块
-
-入口类 `extends dev.android.runtime.api.XposedModule`，并在 `src/main/resources/META-INF/xposed/` 放：
-- `module.prop`：`targetApiVersion=101`（须 ≥101，100 已弃用）、`minApiVersion=101`
-- `java_init.list`：入口类全限定名
-- `scope.list`（可选）：目标包名，一行一个
-
-Manifest 同样需 `rt.min.version` meta-data 才会被管理器识别。
-> 注意：现代模块的 `META-INF/xposed/` 路径未去特征，仍含 `xposed` 字样。
-
 ## 元数据契约
 
 | 键 | 位置 | 必需 | 说明 |
@@ -80,19 +77,23 @@ Manifest 同样需 `rt.min.version` meta-data 才会被管理器识别。
 | `rt.min.version` | manifest meta-data | 是 | 模块标记 + 最低 API 版本（整数，沿用 Xposed 语义，如 82/93） |
 | `rt.scope` | manifest meta-data | 否 | 默认作用域，string-array 资源 id |
 | `rt.shared.prefs` | manifest meta-data | 否 | 布尔，启用远程共享 SharedPreferences |
-| `xposeddescription` | manifest meta-data | 否 | 模块描述（此键暂未改名） |
-| `assets/rt_init` | 资产文件 | 传统模块必需 | 入口类清单 |
+| `assets/rt_init` | 资产文件 | 是 | 入口类清单（一行一个 FQN） |
 | `assets/native_init` | 资产文件 | 否 | 原生 .so 入口清单 |
 
 ## 安装与启用
 
-1. 把模块编译成普通 APK 安装。
+1. 模块编译成普通 APK 安装。
 2. 打开 VectorTai 管理器 → 勾选模块 → 选作用域 → 重启目标应用（或重启）。
 
-## 从源码构建 API
+## 现代 API（可选）
+
+`compileOnly(":VectorTai-modern-api-v2.2@aar")`，入口类 `extends dev.android.runtime.api.XposedModule`，配置放 `src/main/resources/META-INF/xposed/`（`module.prop` 里 `targetApiVersion=101`、`java_init.list` 列入口类），manifest 同样需 `rt.min.version`。
+> 现代 API 的 `dev.android.runtime.api.*` 类名与 `META-INF/xposed/` 路径尚含 `xposed` 字样，未完全去特征；追求彻底去特征请用上面的 `com.android.bridge.*`（传统）API。
+
+## 从源码构建
 
 ```bash
 git submodule update --init --recursive
-python3 rename_api.py          # 把 libxposed 子模块改名，复现去特征
+python3 rename_api.py          # 复现 libxposed 子模块（现代 API）改名
 ./gradlew :legacy:assembleRelease :xposed:assembleRelease
 ```

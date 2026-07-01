@@ -1,11 +1,11 @@
-package dev.android.runtime.ext;
+package com.android.bridge;
 
 import java.lang.reflect.Executable;
 import java.lang.reflect.Member;
 import java.util.HashMap;
 
-import dev.android.runtime.ext.callbacks.IXUnhook;
-import dev.android.runtime.ext.callbacks.XCallback;
+import com.android.bridge.callbacks.IUnhook;
+import com.android.bridge.callbacks.BridgeCallback;
 
 /**
  * Callback class for method hooks.
@@ -13,12 +13,12 @@ import dev.android.runtime.ext.callbacks.XCallback;
  * <p>Usually, anonymous subclasses of this class are created which override
  * {@link #beforeHookedMethod} and/or {@link #afterHookedMethod}.
  */
-public abstract class XC_MethodHook extends XCallback {
+public abstract class TsMethodHook extends BridgeCallback {
     /**
      * Creates a new callback with default priority.
      */
     @SuppressWarnings("deprecation")
-    public XC_MethodHook() {
+    public TsMethodHook() {
         super();
     }
 
@@ -30,9 +30,9 @@ public abstract class XC_MethodHook extends XCallback {
      * final control over the return value. {@link #beforeHookedMethod} is called as usual, i.e.
      * highest priority first.
      *
-     * @param priority See {@link XCallback#priority}.
+     * @param priority See {@link BridgeCallback#priority}.
      */
-    public XC_MethodHook(int priority) {
+    public TsMethodHook(int priority) {
         super(priority);
     }
 
@@ -75,7 +75,7 @@ public abstract class XC_MethodHook extends XCallback {
     /**
      * Wraps information about the method call and allows to influence it.
      */
-    public static final class MethodHookParam<T extends Executable> extends XCallback.Param {
+    public static final class MethodHookParam<T extends Executable> extends BridgeCallback.Param {
         /**
          * @hide
          */
@@ -161,7 +161,7 @@ public abstract class XC_MethodHook extends XCallback {
     /**
      * An object with which the method/constructor can be unhooked.
      */
-    public class Unhook implements IXUnhook<XC_MethodHook> {
+    public class Unhook implements IUnhook<TsMethodHook> {
         private final Member hookMethod;
 
         /*package*/ Unhook(Member hookMethod) {
@@ -176,14 +176,14 @@ public abstract class XC_MethodHook extends XCallback {
         }
 
         @Override
-        public XC_MethodHook getCallback() {
-            return XC_MethodHook.this;
+        public TsMethodHook getCallback() {
+            return TsMethodHook.this;
         }
 
         @SuppressWarnings("deprecation")
         @Override
         public void unhook() {
-            XposedBridge.unhookMethod(hookMethod, XC_MethodHook.this);
+            TsBridge.unhookMethod(hookMethod, TsMethodHook.this);
         }
 
     }

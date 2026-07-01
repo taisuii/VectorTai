@@ -1,4 +1,4 @@
-package dev.android.runtime.ext;
+package com.android.bridge;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -32,15 +32,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import dev.android.runtime.ext.services.FileResult;
+import com.android.bridge.services.FileResult;
 
 /**
  * This class is basically the same as SharedPreferencesImpl from AOSP, but
  * read-only and without listeners support. Instead, it is made to be
  * compatible with all ROMs.
  */
-public final class XSharedPreferences implements SharedPreferences {
-    private static final String TAG = "XSharedPreferences";
+public final class TsSharedPreferences implements SharedPreferences {
+    private static final String TAG = "TsSharedPreferences";
     private static final HashMap<WatchKey, PrefsData> sWatcherKeyInstances = new HashMap<>();
     private static final Object sContent = new Object();
     private static final Method sReadMapXmlMethod;
@@ -129,7 +129,7 @@ public final class XSharedPreferences implements SharedPreferences {
      *
      * @param prefFile The file to read the preferences from.
      */
-    public XSharedPreferences(File prefFile) {
+    public TsSharedPreferences(File prefFile) {
         mFile = prefFile;
         mFilename = prefFile.getAbsolutePath();
         init();
@@ -141,7 +141,7 @@ public final class XSharedPreferences implements SharedPreferences {
      *
      * @param packageName The package name.
      */
-    public XSharedPreferences(String packageName) {
+    public TsSharedPreferences(String packageName) {
         this(packageName, packageName + "_preferences");
     }
 
@@ -152,9 +152,9 @@ public final class XSharedPreferences implements SharedPreferences {
      * @param packageName  The package name.
      * @param prefFileName The file name without ".xml".
      */
-    public XSharedPreferences(String packageName, String prefFileName) {
+    public TsSharedPreferences(String packageName, String prefFileName) {
         boolean newModule = false;
-        var m = XposedInit.getLoadedModules().getOrDefault(packageName, Optional.empty());
+        var m = BridgeInit.getLoadedModules().getOrDefault(packageName, Optional.empty());
         if (m.isPresent()) {
             boolean isModule = false;
             int xposedminversion = -1;
@@ -308,10 +308,10 @@ public final class XSharedPreferences implements SharedPreferences {
         synchronized (this) {
             mLoaded = false;
         }
-        new Thread("XSharedPreferences-load") {
+        new Thread("TsSharedPreferences-load") {
             @Override
             public void run() {
-                synchronized (XSharedPreferences.this) {
+                synchronized (TsSharedPreferences.this) {
                     loadFromDiskLocked();
                 }
             }
@@ -557,11 +557,11 @@ public final class XSharedPreferences implements SharedPreferences {
     }
 
     private static class PrefsData {
-        public final XSharedPreferences mPrefs;
+        public final TsSharedPreferences mPrefs;
         private long mSize;
         private byte[] mHash;
 
-        public PrefsData(XSharedPreferences prefs) {
+        public PrefsData(TsSharedPreferences prefs) {
             mPrefs = prefs;
             mSize = tryGetFileSize(prefs.mFilename);
             mHash = tryGetFileHash(prefs.mFilename);

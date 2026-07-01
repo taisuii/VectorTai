@@ -1,11 +1,11 @@
-package dev.android.runtime.ext.services;
+package com.android.bridge.services;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import dev.android.runtime.ext.SELinuxHelper;
+import com.android.bridge.SELinuxHelper;
 
 /**
  * General definition of a file access service provided by the Xposed framework.

@@ -1,42 +1,42 @@
-package dev.android.runtime.ext.callbacks;
+package com.android.bridge.callbacks;
 
 import android.content.res.XResources;
 import android.content.res.XResources.ResourceNames;
 import android.view.View;
 
-import dev.android.runtime.ext.XposedBridge.CopyOnWriteSortedSet;
+import com.android.bridge.TsBridge.CopyOnWriteSortedSet;
 
 /**
  * Callback for hooking layouts. Such callbacks can be passed to {@link XResources#hookLayout}
  * and its variants.
  */
-public abstract class XC_LayoutInflated extends XCallback implements Comparable<XC_LayoutInflated> {
+public abstract class TsLayoutInflated extends BridgeCallback implements Comparable<TsLayoutInflated> {
     /**
      * Creates a new callback with default priority.
      */
     @SuppressWarnings("deprecation")
-    public XC_LayoutInflated() {
+    public TsLayoutInflated() {
         super();
     }
 
     /**
      * Creates a new callback with a specific priority.
      *
-     * @param priority See {@link XCallback#priority}.
+     * @param priority See {@link BridgeCallback#priority}.
      */
-    public XC_LayoutInflated(int priority) {
+    public TsLayoutInflated(int priority) {
         super(priority);
     }
 
     /**
      * Wraps information about the inflated layout.
      */
-    public static final class LayoutInflatedParam extends XCallback.Param {
+    public static final class LayoutInflatedParam extends BridgeCallback.Param {
         /**
          * @hide
          */
-        public LayoutInflatedParam(CopyOnWriteSortedSet<XC_LayoutInflated> callbacks) {
-            super(callbacks.getSnapshot(new XCallback[0]));
+        public LayoutInflatedParam(CopyOnWriteSortedSet<TsLayoutInflated> callbacks) {
+            super(callbacks.getSnapshot(new BridgeCallback[0]));
         }
 
         /**
@@ -62,7 +62,7 @@ public abstract class XC_LayoutInflated extends XCallback implements Comparable<
 
     /** @hide */
     @Override
-    public int compareTo(XC_LayoutInflated other) {
+    public int compareTo(TsLayoutInflated other) {
         if (this == other)
             return 0;
 
@@ -96,7 +96,7 @@ public abstract class XC_LayoutInflated extends XCallback implements Comparable<
     /**
      * An object with which the callback can be removed.
      */
-    public class Unhook implements IXUnhook<XC_LayoutInflated> {
+    public class Unhook implements IUnhook<TsLayoutInflated> {
         private final String resDir;
         private final int id;
 
@@ -116,13 +116,13 @@ public abstract class XC_LayoutInflated extends XCallback implements Comparable<
         }
 
         @Override
-        public XC_LayoutInflated getCallback() {
-            return XC_LayoutInflated.this;
+        public TsLayoutInflated getCallback() {
+            return TsLayoutInflated.this;
         }
 
         @Override
         public void unhook() {
-            XResources.unhookLayout(resDir, id, XC_LayoutInflated.this);
+            XResources.unhookLayout(resDir, id, TsLayoutInflated.this);
         }
 
     }

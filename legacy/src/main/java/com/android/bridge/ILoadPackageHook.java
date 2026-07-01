@@ -1,9 +1,9 @@
-package dev.android.runtime.ext;
+package com.android.bridge;
 
 import android.app.Application;
 
-import dev.android.runtime.ext.callbacks.XC_LoadPackage;
-import dev.android.runtime.ext.callbacks.XC_LoadPackage.LoadPackageParam;
+import com.android.bridge.callbacks.TsLoadPackage;
+import com.android.bridge.callbacks.TsLoadPackage.LoadPackageParam;
 
 /**
  * Get notified when an app ("Android package") is loaded.
@@ -12,7 +12,7 @@ import dev.android.runtime.ext.callbacks.XC_LoadPackage.LoadPackageParam;
  * <p>This interface should be implemented by the module's main class. Xposed will take care of
  * registering it as a callback automatically.
  */
-public interface IXposedHookLoadPackage extends IXposedMod {
+public interface ILoadPackageHook extends IModuleHook {
     /**
      * This method is called when an app is loaded. It's called very early, even before
      * {@link Application#onCreate} is called.
@@ -24,9 +24,9 @@ public interface IXposedHookLoadPackage extends IXposedMod {
     void handleLoadPackage(LoadPackageParam lpparam) throws Throwable;
 
     /** @hide */
-    final class Wrapper extends XC_LoadPackage {
-        private final IXposedHookLoadPackage instance;
-        public Wrapper(IXposedHookLoadPackage instance) {
+    final class Wrapper extends TsLoadPackage {
+        private final ILoadPackageHook instance;
+        public Wrapper(ILoadPackageHook instance) {
             this.instance = instance;
         }
         @Override

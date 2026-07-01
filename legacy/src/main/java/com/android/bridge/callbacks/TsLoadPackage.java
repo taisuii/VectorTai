@@ -1,4 +1,4 @@
-package dev.android.runtime.ext.callbacks;
+package com.android.bridge.callbacks;
 
 import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
@@ -8,44 +8,44 @@ import androidx.annotation.Nullable;
 
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import dev.android.runtime.ext.IXposedHookLoadPackage;
-import dev.android.runtime.ext.XposedBridge.CopyOnWriteSortedSet;
+import com.android.bridge.ILoadPackageHook;
+import com.android.bridge.TsBridge.CopyOnWriteSortedSet;
 import dev.android.runtime.api.XposedModuleInterface;
 
 /**
  * This class is only used for internal purposes, except for the {@link LoadPackageParam}
  * subclass.
  */
-public abstract class XC_LoadPackage extends XCallback implements IXposedHookLoadPackage {
+public abstract class TsLoadPackage extends BridgeCallback implements ILoadPackageHook {
     /**
      * Creates a new callback with default priority.
      *
      * @hide
      */
     @SuppressWarnings("deprecation")
-    public XC_LoadPackage() {
+    public TsLoadPackage() {
         super();
     }
 
     /**
      * Creates a new callback with a specific priority.
      *
-     * @param priority See {@link XCallback#priority}.
+     * @param priority See {@link BridgeCallback#priority}.
      * @hide
      */
-    public XC_LoadPackage(int priority) {
+    public TsLoadPackage(int priority) {
         super(priority);
     }
 
     /**
      * Wraps information about the app being loaded.
      */
-    public static final class LoadPackageParam extends XCallback.Param {
+    public static final class LoadPackageParam extends BridgeCallback.Param {
         /**
          * @hide
          */
-        public LoadPackageParam(CopyOnWriteArraySet<XC_LoadPackage> callbacks) {
-            super(callbacks.toArray(new XCallback[0]));
+        public LoadPackageParam(CopyOnWriteArraySet<TsLoadPackage> callbacks) {
+            super(callbacks.toArray(new BridgeCallback[0]));
         }
 
         /**

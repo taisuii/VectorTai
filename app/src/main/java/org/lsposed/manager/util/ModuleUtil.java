@@ -373,7 +373,7 @@ public final class ModuleUtil {
             }
             if (list != null) {
                 //For historical reasons, legacy modules use the opposite name.
-                //https://github.com/rovo89/XposedBridge/commit/6b49688c929a7768f3113b4c65b429c7a7032afa
+                //https://github.com/rovo89/TsBridge/commit/6b49688c929a7768f3113b4c65b429c7a7032afa
                 list.replaceAll(s ->
                     switch (s) {
                         case "android" -> "system";

@@ -1,7 +1,7 @@
-package dev.android.runtime.ext;
+package com.android.bridge;
 
-import dev.android.runtime.ext.services.BaseService;
-import dev.android.runtime.ext.services.DirectAccessService;
+import com.android.bridge.services.BaseService;
+import com.android.bridge.services.DirectAccessService;
 
 /**
  * A helper to work with (or without) SELinux, abstracting much of its big complexity.

@@ -1,4 +1,4 @@
-package dev.android.runtime.ext.callbacks;
+package com.android.bridge.callbacks;
 
 import android.os.Bundle;
 
@@ -6,7 +6,7 @@ import org.matrix.vector.impl.core.VectorDeopter;
 
 import java.io.Serializable;
 
-import dev.android.runtime.ext.XposedBridge;
+import com.android.bridge.TsBridge;
 
 /**
  * Base class for Xposed callbacks.
@@ -14,7 +14,7 @@ import dev.android.runtime.ext.XposedBridge;
  * This class only keeps a priority for ordering multiple callbacks.
  * The actual (abstract) callback methods are added by subclasses.
  */
-abstract public class XCallback {
+abstract public class BridgeCallback {
     /**
      * Callback priority, higher number means earlier execution.
      *
@@ -29,14 +29,14 @@ abstract public class XCallback {
      * @deprecated This constructor can't be hidden for technical reasons. Nevertheless, don't use it!
      */
     @Deprecated
-    public XCallback() {
+    public BridgeCallback() {
         this.priority = PRIORITY_DEFAULT;
     }
 
     /**
      * @hide
      */
-    public XCallback(int priority) {
+    public BridgeCallback(int priority) {
         this.priority = priority;
     }
 
@@ -47,7 +47,7 @@ abstract public class XCallback {
         /**
          * @hide
          */
-        public final XCallback[] callbacks;
+        public final BridgeCallback[] callbacks;
         private Bundle extra;
 
         /**
@@ -61,7 +61,7 @@ abstract public class XCallback {
         /**
          * @hide
          */
-        protected Param(XCallback[] callbacks) {
+        protected Param(BridgeCallback[] callbacks) {
             this.callbacks = callbacks;
         }
 
@@ -113,10 +113,10 @@ abstract public class XCallback {
      */
     public static void callAll(Param param) {
 
-        if (param instanceof XC_LoadPackage.LoadPackageParam) {
+        if (param instanceof TsLoadPackage.LoadPackageParam) {
             // deopt methods in system apps or priv-apps, this would be not necessary
             // only if we found out how to recompile their apks
-            XC_LoadPackage.LoadPackageParam lpp = (XC_LoadPackage.LoadPackageParam) param;
+            TsLoadPackage.LoadPackageParam lpp = (TsLoadPackage.LoadPackageParam) param;
             VectorDeopter.deoptMethods(lpp.packageName, lpp.classLoader);
         }
 
@@ -127,7 +127,7 @@ abstract public class XCallback {
             try {
                 param.callbacks[i].call(param);
             } catch (Throwable t) {
-                XposedBridge.log(t);
+                TsBridge.log(t);
             }
         }
     }

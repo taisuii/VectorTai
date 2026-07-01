@@ -23,7 +23,7 @@ namespace {
 std::once_flag init_flag;
 
 std::map<std::string, std::string> signatures = {
-    {"Ldev/android/runtime/ext/", ""},         {"Landroid/app/AndroidApp", ""},
+    {"Lcom/android/bridge/", ""},         {"Landroid/app/AndroidApp", ""},
     {"Landroid/content/res/XRes", ""},        {"Landroid/content/res/XModule", ""},
     {"Ldev/android/runtime/api/Xposed", ""},  {"Lorg/matrix/vector/core/", ""},
     {"Lorg/matrix/vector/nativebridge/", ""}, {"Lorg/matrix/vector/service/", ""},

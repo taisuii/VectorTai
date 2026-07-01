@@ -1,17 +1,17 @@
-package dev.android.runtime.ext;
+package com.android.bridge;
 
 /**
  * Hook the initialization of Zygote process(es), from which all the apps are forked.
  *
  * <p>Implement this interface in your module's main class in order to be notified when Android is
- * starting up. In {@link IXposedHookZygoteInit}, you can modify objects and place hooks that should
+ * starting up. In {@link IZygoteInitHook}, you can modify objects and place hooks that should
  * be applied for every app. Only the Android framework/system classes are available at that point
- * in time. Use {@code null} as class loader for {@link XposedHelpers#findAndHookMethod(String, ClassLoader, String, Object...)}
+ * in time. Use {@code null} as class loader for {@link TsHelpers#findAndHookMethod(String, ClassLoader, String, Object...)}
  * and its variants.
  *
- * <p>If you want to hook one/multiple specific apps, use {@link IXposedHookLoadPackage} instead.
+ * <p>If you want to hook one/multiple specific apps, use {@link ILoadPackageHook} instead.
  */
-public interface IXposedHookZygoteInit extends IXposedMod {
+public interface IZygoteInitHook extends IModuleHook {
     /**
      * Called very early during startup of Zygote.
      * @param startupParam Details about the module itself and the started process.

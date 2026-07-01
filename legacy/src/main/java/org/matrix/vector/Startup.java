@@ -6,15 +6,15 @@ import org.matrix.vector.impl.core.VectorStartup;
 import org.matrix.vector.impl.di.VectorBootstrap;
 import org.matrix.vector.legacy.LegacyDelegateImpl;
 
-import dev.android.runtime.ext.XposedBridge;
-import dev.android.runtime.ext.XposedInit;
+import com.android.bridge.TsBridge;
+import com.android.bridge.BridgeInit;
 
 public class Startup {
 
     public static void bootstrapXposed(boolean systemServerStarted) {
         try {
-            VectorStartup.bootstrap(XposedInit.startsSystemServer, systemServerStarted);
-            XposedInit.loadLegacyModules();
+            VectorStartup.bootstrap(BridgeInit.startsSystemServer, systemServerStarted);
+            BridgeInit.loadLegacyModules();
         } catch (Throwable t) {
             Utils.logE("Error during framework initialization", t);
         }
@@ -25,8 +25,8 @@ public class Startup {
         VectorBootstrap.INSTANCE.init(new LegacyDelegateImpl());
 
         // Initialize legacy resources and state
-        XposedBridge.initXResources();
-        XposedInit.startsSystemServer = isSystem;
+        TsBridge.initXResources();
+        BridgeInit.startsSystemServer = isSystem;
 
         // Hand off execution to the modern framework initialization
         VectorStartup.init(isSystem, processName, appDir, service);

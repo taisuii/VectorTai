@@ -1,24 +1,24 @@
-package dev.android.runtime.ext;
+package com.android.bridge;
 
-import dev.android.runtime.ext.callbacks.XCallback;
+import com.android.bridge.callbacks.BridgeCallback;
 
 /**
- * A special case of {@link XC_MethodHook} which completely replaces the original method.
+ * A special case of {@link TsMethodHook} which completely replaces the original method.
  */
-public abstract class XC_MethodReplacement extends XC_MethodHook {
+public abstract class TsMethodReplacement extends TsMethodHook {
     /**
      * Creates a new callback with default priority.
      */
-    public XC_MethodReplacement() {
+    public TsMethodReplacement() {
         super();
     }
 
     /**
      * Creates a new callback with a specific priority.
      *
-     * @param priority See {@link XCallback#priority}.
+     * @param priority See {@link BridgeCallback#priority}.
      */
-    public XC_MethodReplacement(int priority) {
+    public TsMethodReplacement(int priority) {
         super(priority);
     }
 
@@ -58,7 +58,7 @@ public abstract class XC_MethodReplacement extends XC_MethodHook {
     /**
      * Predefined callback that skips the method without replacements.
      */
-    public static final XC_MethodReplacement DO_NOTHING = new XC_MethodReplacement(PRIORITY_HIGHEST * 2) {
+    public static final TsMethodReplacement DO_NOTHING = new TsMethodReplacement(PRIORITY_HIGHEST * 2) {
         @Override
         protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
             return null;
@@ -70,18 +70,18 @@ public abstract class XC_MethodReplacement extends XC_MethodHook {
      *
      * @param result The value that should be returned to callers of the hooked method.
      */
-    public static XC_MethodReplacement returnConstant(final Object result) {
+    public static TsMethodReplacement returnConstant(final Object result) {
         return returnConstant(PRIORITY_DEFAULT, result);
     }
 
     /**
      * Like {@link #returnConstant(Object)}, but allows to specify a priority for the callback.
      *
-     * @param priority See {@link XCallback#priority}.
+     * @param priority See {@link BridgeCallback#priority}.
      * @param result   The value that should be returned to callers of the hooked method.
      */
-    public static XC_MethodReplacement returnConstant(int priority, final Object result) {
-        return new XC_MethodReplacement(priority) {
+    public static TsMethodReplacement returnConstant(int priority, final Object result) {
+        return new TsMethodReplacement(priority) {
             @Override
             protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
                 return result;

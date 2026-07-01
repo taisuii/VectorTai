@@ -1,11 +1,11 @@
 package android.app;
 
-import static dev.android.runtime.ext.XposedHelpers.findClass;
-import static dev.android.runtime.ext.XposedHelpers.findFieldIfExists;
-import static dev.android.runtime.ext.XposedHelpers.findMethodExactIfExists;
-import static dev.android.runtime.ext.XposedHelpers.getObjectField;
-import static dev.android.runtime.ext.XposedHelpers.newInstance;
-import static dev.android.runtime.ext.XposedHelpers.setFloatField;
+import static com.android.bridge.TsHelpers.findClass;
+import static com.android.bridge.TsHelpers.findFieldIfExists;
+import static com.android.bridge.TsHelpers.findMethodExactIfExists;
+import static com.android.bridge.TsHelpers.getObjectField;
+import static com.android.bridge.TsHelpers.newInstance;
+import static com.android.bridge.TsHelpers.setFloatField;
 
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
@@ -17,8 +17,8 @@ import android.view.Display;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 
-import dev.android.runtime.ext.XSharedPreferences;
-import dev.android.runtime.ext.XposedBridge;
+import com.android.bridge.TsSharedPreferences;
+import com.android.bridge.TsBridge;
 
 /**
  * Contains various methods for information about the current app.
@@ -51,7 +51,7 @@ public final class AndroidAppHelper {
 		try {
 			return newInstance(CLASS_RESOURCES_KEY, resDir, splitResDirs, overlayDirs, libDirs, displayId, overrideConfiguration, compatInfo);
 		} catch (Throwable t) {
-			XposedBridge.log(t);
+			TsBridge.log(t);
 			return null;
 		}
 	}
@@ -131,24 +131,24 @@ public final class AndroidAppHelper {
 		return ActivityThread.currentApplication();
 	}
 
-	/** @deprecated Use {@link XSharedPreferences} instead. */
+	/** @deprecated Use {@link TsSharedPreferences} instead. */
 	@SuppressWarnings("UnusedParameters")
 	@Deprecated
 	public static SharedPreferences getSharedPreferencesForPackage(String packageName, String prefFileName, int mode) {
-		return new XSharedPreferences(packageName, prefFileName);
+		return new TsSharedPreferences(packageName, prefFileName);
 	}
 
-	/** @deprecated Use {@link XSharedPreferences} instead. */
+	/** @deprecated Use {@link TsSharedPreferences} instead. */
 	@Deprecated
 	public static SharedPreferences getDefaultSharedPreferencesForPackage(String packageName) {
-		return new XSharedPreferences(packageName);
+		return new TsSharedPreferences(packageName);
 	}
 
-	/** @deprecated Use {@link XSharedPreferences#reload} instead. */
+	/** @deprecated Use {@link TsSharedPreferences#reload} instead. */
 	@Deprecated
 	public static void reloadSharedPreferencesIfNeeded(SharedPreferences pref) {
-		if (pref instanceof XSharedPreferences) {
-			((XSharedPreferences) pref).reload();
+		if (pref instanceof TsSharedPreferences) {
+			((TsSharedPreferences) pref).reload();
 		}
 	}
 }

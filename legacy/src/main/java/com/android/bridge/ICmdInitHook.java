@@ -1,4 +1,4 @@
-package dev.android.runtime.ext;
+package com.android.bridge;
 
 
 /**
@@ -7,7 +7,7 @@ package dev.android.runtime.ext;
  * @hide Xposed no longer hooks command-line tools, therefore this interface shouldn't be
  * implemented anymore.
  */
-public interface IXposedHookCmdInit extends IXposedMod {
+public interface ICmdInitHook extends IModuleHook {
     /**
      * Called very early during startup of a command-line tool.
      *

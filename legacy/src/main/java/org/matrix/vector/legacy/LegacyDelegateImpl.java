@@ -15,12 +15,12 @@ import java.io.IOException;
 import java.lang.reflect.Executable;
 import java.util.Map;
 
-import dev.android.runtime.ext.XC_MethodHook;
-import dev.android.runtime.ext.XC_MethodReplacement;
-import dev.android.runtime.ext.XposedBridge;
-import dev.android.runtime.ext.XposedHelpers;
-import dev.android.runtime.ext.XposedInit;
-import dev.android.runtime.ext.callbacks.XC_LoadPackage;
+import com.android.bridge.TsMethodHook;
+import com.android.bridge.TsMethodReplacement;
+import com.android.bridge.TsBridge;
+import com.android.bridge.TsHelpers;
+import com.android.bridge.BridgeInit;
+import com.android.bridge.callbacks.TsLoadPackage;
 
 /**
  * Implementation of the explicit dependency injection contract.
@@ -30,12 +30,12 @@ public class LegacyDelegateImpl implements LegacyFrameworkDelegate {
 
     @Override
     public void loadModules(Object activityThread) {
-        XposedInit.loadModules((android.app.ActivityThread) activityThread);
+        BridgeInit.loadModules((android.app.ActivityThread) activityThread);
     }
 
     @Override
     public void onPackageLoaded(LegacyPackageInfo info) {
-        XC_LoadPackage.LoadPackageParam lpparam = new XC_LoadPackage.LoadPackageParam(XposedBridge.sLoadedPackageCallbacks);
+        TsLoadPackage.LoadPackageParam lpparam = new TsLoadPackage.LoadPackageParam(TsBridge.sLoadedPackageCallbacks);
         lpparam.packageName = info.getPackageName();
         lpparam.processName = info.getProcessName();
         lpparam.classLoader = info.getClassLoader();
@@ -46,26 +46,26 @@ public class LegacyDelegateImpl implements LegacyFrameworkDelegate {
             hookNewXSP(lpparam);
         }
 
-        XC_LoadPackage.callAll(lpparam);
+        TsLoadPackage.callAll(lpparam);
     }
 
     @Override
     public void onSystemServerLoaded(ClassLoader classLoader) {
-        XposedInit.loadedPackagesInProcess.add("android");
-        XC_LoadPackage.LoadPackageParam lpparam = new XC_LoadPackage.LoadPackageParam(XposedBridge.sLoadedPackageCallbacks);
+        BridgeInit.loadedPackagesInProcess.add("android");
+        TsLoadPackage.LoadPackageParam lpparam = new TsLoadPackage.LoadPackageParam(TsBridge.sLoadedPackageCallbacks);
         lpparam.packageName = "android";
         // For comptibility, we set the process name of `system_server` as `android`.
-        // https://github.com/rovo89/XposedBridge/blob/art/app/src/main/java/dev/android/runtime/ext/XposedInit.java
+        // https://github.com/rovo89/TsBridge/blob/art/app/src/main/java/com/android/bridge/BridgeInit.java
         lpparam.processName = "android";
         lpparam.classLoader = classLoader;
         lpparam.isFirstApplication = true;
-        XC_LoadPackage.callAll(lpparam);
+        TsLoadPackage.callAll(lpparam);
     }
 
     @Override
     public Object processLegacyHook(Executable executable, Object thisObject, Object[] args, Object[] legacyHooks, OriginalInvoker invokeOriginal) {
         VectorLegacyCallback<Executable> callback = new VectorLegacyCallback<>(executable, thisObject, args);
-        XposedBridge.LegacyApiSupport<Executable> legacy = new XposedBridge.LegacyApiSupport<>(callback, legacyHooks);
+        TsBridge.LegacyApiSupport<Executable> legacy = new TsBridge.LegacyApiSupport<>(callback, legacyHooks);
 
         legacy.handleBefore();
 
@@ -88,12 +88,12 @@ public class LegacyDelegateImpl implements LegacyFrameworkDelegate {
 
     @Override
     public boolean isResourceHookingDisabled() {
-        return XposedInit.disableResources;
+        return BridgeInit.disableResources;
     }
 
     @Override
     public boolean hasLegacyModule(String packageName) {
-        return XposedInit.getLoadedModules().containsKey(packageName);
+        return BridgeInit.getLoadedModules().containsKey(packageName);
     }
 
     @Override
@@ -110,7 +110,7 @@ public class LegacyDelegateImpl implements LegacyFrameworkDelegate {
         }
     }
 
-    private void hookNewXSP(XC_LoadPackage.LoadPackageParam lpparam) {
+    private void hookNewXSP(TsLoadPackage.LoadPackageParam lpparam) {
         int xposedminversion = -1;
         boolean xposedsharedprefs = false;
         try {
@@ -126,7 +126,7 @@ public class LegacyDelegateImpl implements LegacyFrameworkDelegate {
         }
 
         if (xposedminversion > 92 || xposedsharedprefs) {
-            XposedHelpers.findAndHookMethod("android.app.ContextImpl", lpparam.classLoader, "checkMode", int.class, new XC_MethodHook() {
+            TsHelpers.findAndHookMethod("android.app.ContextImpl", lpparam.classLoader, "checkMode", int.class, new TsMethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) {
                     if (((int) param.args[0] & 1) != 0) {
@@ -134,7 +134,7 @@ public class LegacyDelegateImpl implements LegacyFrameworkDelegate {
                     }
                 }
             });
-            XposedHelpers.findAndHookMethod("android.app.ContextImpl", lpparam.classLoader, "getPreferencesDir", new XC_MethodReplacement() {
+            TsHelpers.findAndHookMethod("android.app.ContextImpl", lpparam.classLoader, "getPreferencesDir", new TsMethodReplacement() {
                 @Override
                 protected Object replaceHookedMethod(MethodHookParam param) {
                     return new File(VectorServiceClient.INSTANCE.getPrefsPath(lpparam.packageName));

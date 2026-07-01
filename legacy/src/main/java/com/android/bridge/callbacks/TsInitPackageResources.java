@@ -1,4 +1,4 @@
-package dev.android.runtime.ext.callbacks;
+package com.android.bridge.callbacks;
 
 import android.content.res.XResources;
 import android.os.Bundle;
@@ -8,43 +8,43 @@ import androidx.annotation.Nullable;
 
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import dev.android.runtime.ext.IXposedHookInitPackageResources;
+import com.android.bridge.IInitPackageResourcesHook;
 import dev.android.runtime.api.XposedModuleInterface;
 
 /**
  * This class is only used for internal purposes, except for the {@link InitPackageResourcesParam}
  * subclass.
  */
-public abstract class XC_InitPackageResources extends XCallback implements IXposedHookInitPackageResources {
+public abstract class TsInitPackageResources extends BridgeCallback implements IInitPackageResourcesHook {
     /**
      * Creates a new callback with default priority.
      *
      * @hide
      */
     @SuppressWarnings("deprecation")
-    public XC_InitPackageResources() {
+    public TsInitPackageResources() {
         super();
     }
 
     /**
      * Creates a new callback with a specific priority.
      *
-     * @param priority See {@link XCallback#priority}.
+     * @param priority See {@link BridgeCallback#priority}.
      * @hide
      */
-    public XC_InitPackageResources(int priority) {
+    public TsInitPackageResources(int priority) {
         super(priority);
     }
 
     /**
      * Wraps information about the resources being initialized.
      */
-    public static final class InitPackageResourcesParam extends XCallback.Param {
+    public static final class InitPackageResourcesParam extends BridgeCallback.Param {
         /**
          * @hide
          */
-        public InitPackageResourcesParam(CopyOnWriteArraySet<XC_InitPackageResources> callbacks) {
-            super(callbacks.toArray(new XCallback[0]));
+        public InitPackageResourcesParam(CopyOnWriteArraySet<TsInitPackageResources> callbacks) {
+            super(callbacks.toArray(new BridgeCallback[0]));
         }
 
         /**

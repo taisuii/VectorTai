@@ -1,11 +1,11 @@
-package dev.android.runtime.ext;
+package com.android.bridge;
 
-import static dev.android.runtime.ext.XposedBridge.hookAllMethods;
-import static dev.android.runtime.ext.XposedHelpers.callMethod;
-import static dev.android.runtime.ext.XposedHelpers.findAndHookMethod;
-import static dev.android.runtime.ext.XposedHelpers.getObjectField;
-import static dev.android.runtime.ext.XposedHelpers.getParameterIndexByType;
-import static dev.android.runtime.ext.XposedHelpers.setStaticObjectField;
+import static com.android.bridge.TsBridge.hookAllMethods;
+import static com.android.bridge.TsHelpers.callMethod;
+import static com.android.bridge.TsHelpers.findAndHookMethod;
+import static com.android.bridge.TsHelpers.getObjectField;
+import static com.android.bridge.TsHelpers.getParameterIndexByType;
+import static com.android.bridge.TsHelpers.setStaticObjectField;
 
 import android.app.ActivityThread;
 import android.content.pm.ApplicationInfo;
@@ -38,12 +38,12 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import dev.android.runtime.ext.callbacks.XC_InitPackageResources;
-import dev.android.runtime.ext.callbacks.XCallback;
+import com.android.bridge.callbacks.TsInitPackageResources;
+import com.android.bridge.callbacks.BridgeCallback;
 import hidden.HiddenApiBridge;
 
-public final class XposedInit {
-    private static final String TAG = XposedBridge.TAG;
+public final class BridgeInit {
+    private static final String TAG = TsBridge.TAG;
     public static boolean startsSystemServer = false;
 
     public static volatile boolean disableResources = false;
@@ -63,7 +63,7 @@ public final class XposedInit {
         }
 
         findAndHookMethod("android.app.ApplicationPackageManager", null, "getResourcesForApplication",
-                ApplicationInfo.class, new XC_MethodHook() {
+                ApplicationInfo.class, new TsMethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam<?> param) {
                         ApplicationInfo app = (ApplicationInfo) param.args[0];
@@ -97,8 +97,8 @@ public final class XposedInit {
             createResourceMethods.add("getOrCreateResources");
         }
 
-        final Class<?> classActivityRes = XposedHelpers.findClassIfExists("android.app.ResourcesManager$ActivityResource", classGTLR.getClassLoader());
-        var hooker = new XC_MethodHook() {
+        final Class<?> classActivityRes = TsHelpers.findClassIfExists("android.app.ResourcesManager$ActivityResource", classGTLR.getClassLoader());
+        var hooker = new TsMethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam<?> param) {
                 // At least on OnePlus 5, the method has an additional parameter compared to AOSP.
@@ -130,8 +130,8 @@ public final class XposedInit {
                         resourceReferences.add(new WeakReference<>(newRes));
                     } else {
                         // Android S createResourcesForActivity()
-                        var activityRes = XposedHelpers.newInstance(classActivityRes);
-                        XposedHelpers.setObjectField(activityRes, "resources", new WeakReference<>(newRes));
+                        var activityRes = TsHelpers.newInstance(classActivityRes);
+                        TsHelpers.setObjectField(activityRes, "resources", new WeakReference<>(newRes));
                         resourceReferences.add(activityRes);
                     }
                 }
@@ -143,7 +143,7 @@ public final class XposedInit {
         }
 
         findAndHookMethod(TypedArray.class, "obtain", Resources.class, int.class,
-                new XC_MethodHook() {
+                new TsMethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam<?> param) throws Throwable {
                         if (param.getResult() instanceof XResources.XTypedArray) {
@@ -155,7 +155,7 @@ public final class XposedInit {
                         XResources.XTypedArray newResult =
                                 new XResources.XTypedArray((Resources) param.args[0]);
                         int len = (int) param.args[1];
-                        Method resizeMethod = XposedHelpers.findMethodBestMatch(
+                        Method resizeMethod = TsHelpers.findMethodBestMatch(
                                 TypedArray.class, "resize", int.class);
                         resizeMethod.setAccessible(true);
                         resizeMethod.invoke(newResult, len);
@@ -165,14 +165,14 @@ public final class XposedInit {
 
         // Replace system resources
         XResources systemRes = new XResources(
-                (ClassLoader) XposedHelpers.getObjectField(Resources.getSystem(), "mClassLoader"), null);
-        HiddenApiBridge.Resources_setImpl(systemRes, (ResourcesImpl) XposedHelpers.getObjectField(Resources.getSystem(), "mResourcesImpl"));
+                (ClassLoader) TsHelpers.getObjectField(Resources.getSystem(), "mClassLoader"), null);
+        HiddenApiBridge.Resources_setImpl(systemRes, (ResourcesImpl) TsHelpers.getObjectField(Resources.getSystem(), "mResourcesImpl"));
         setStaticObjectField(Resources.class, "mSystem", systemRes);
 
         XResources.init(latestResKey);
     }
 
-    private static XResources cloneToXResources(XC_MethodHook.MethodHookParam<?> param, String resDir) {
+    private static XResources cloneToXResources(TsMethodHook.MethodHookParam<?> param, String resDir) {
         Object result = param.getResult();
         if (result == null || result instanceof XResources) {
             return null;
@@ -180,16 +180,16 @@ public final class XposedInit {
 
         // Replace the returned resources with our subclass.
         var newRes = new XResources(
-                (ClassLoader) XposedHelpers.getObjectField(param.getResult(), "mClassLoader"), resDir);
-        HiddenApiBridge.Resources_setImpl(newRes, (ResourcesImpl) XposedHelpers.getObjectField(param.getResult(), "mResourcesImpl"));
+                (ClassLoader) TsHelpers.getObjectField(param.getResult(), "mClassLoader"), resDir);
+        HiddenApiBridge.Resources_setImpl(newRes, (ResourcesImpl) TsHelpers.getObjectField(param.getResult(), "mResourcesImpl"));
 
         // Invoke handleInitPackageResources().
         if (newRes.isFirstLoad()) {
             String packageName = newRes.getPackageName();
-            XC_InitPackageResources.InitPackageResourcesParam resparam = new XC_InitPackageResources.InitPackageResourcesParam(XposedBridge.sInitPackageResourcesCallbacks);
+            TsInitPackageResources.InitPackageResourcesParam resparam = new TsInitPackageResources.InitPackageResourcesParam(TsBridge.sInitPackageResourcesCallbacks);
             resparam.packageName = packageName;
             resparam.res = newRes;
-            XCallback.callAll(resparam);
+            BridgeCallback.callAll(resparam);
         }
 
         param.setResult(newRes);
@@ -217,7 +217,7 @@ public final class XposedInit {
     }
 
     public static void loadModules(ActivityThread at) {
-        var packages = (ArrayMap<?, ?>) XposedHelpers.getObjectField(at, "mPackages");
+        var packages = (ArrayMap<?, ?>) TsHelpers.getObjectField(at, "mPackages");
         VectorServiceClient.INSTANCE.getModulesList().forEach(module -> {
             loadedModules.put(module.packageName, Optional.empty());
             if (!VectorModuleManager.INSTANCE.loadModule(module, startsSystemServer, VectorServiceClient.INSTANCE.getProcessName())) {
@@ -244,29 +244,29 @@ public final class XposedInit {
 
                 Class<?> moduleClass = mcl.loadClass(moduleClassName);
 
-                if (!IXposedMod.class.isAssignableFrom(moduleClass)) {
-                    Log.e(TAG, "    This class doesn't implement any sub-interface of IXposedMod, skipping it");
+                if (!IModuleHook.class.isAssignableFrom(moduleClass)) {
+                    Log.e(TAG, "    This class doesn't implement any sub-interface of IModuleHook, skipping it");
                     continue;
                 }
 
                 final Object moduleInstance = moduleClass.newInstance();
 
-                if (moduleInstance instanceof IXposedHookZygoteInit) {
-                    IXposedHookZygoteInit.StartupParam param = new IXposedHookZygoteInit.StartupParam();
+                if (moduleInstance instanceof IZygoteInitHook) {
+                    IZygoteInitHook.StartupParam param = new IZygoteInitHook.StartupParam();
                     param.modulePath = apk;
                     param.startsSystemServer = startsSystemServer;
-                    ((IXposedHookZygoteInit) moduleInstance).initZygote(param);
+                    ((IZygoteInitHook) moduleInstance).initZygote(param);
                     count++;
                 }
 
-                if (moduleInstance instanceof IXposedHookLoadPackage) {
-                    XposedBridge.hookLoadPackage(new IXposedHookLoadPackage.Wrapper((IXposedHookLoadPackage) moduleInstance));
+                if (moduleInstance instanceof ILoadPackageHook) {
+                    TsBridge.hookLoadPackage(new ILoadPackageHook.Wrapper((ILoadPackageHook) moduleInstance));
                     count++;
                 }
 
-                if (moduleInstance instanceof IXposedHookInitPackageResources) {
+                if (moduleInstance instanceof IInitPackageResourcesHook) {
                     hookResources();
-                    XposedBridge.hookInitPackageResources(new IXposedHookInitPackageResources.Wrapper((IXposedHookInitPackageResources) moduleInstance));
+                    TsBridge.hookInitPackageResources(new IInitPackageResourcesHook.Wrapper((IInitPackageResourcesHook) moduleInstance));
                     count++;
                 }
             } catch (Throwable t) {
@@ -290,11 +290,11 @@ public final class XposedInit {
         }
         var librarySearchPath = sb.toString();
 
-        var initLoader = XposedInit.class.getClassLoader();
+        var initLoader = BridgeInit.class.getClassLoader();
         var mcl = VectorModuleClassLoader.loadApk(apk, file.preLoadedDexes, librarySearchPath, initLoader);
 
         try {
-            if (mcl.loadClass(XposedBridge.class.getName()).getClassLoader() != initLoader) {
+            if (mcl.loadClass(TsBridge.class.getName()).getClassLoader() != initLoader) {
                 Log.e(TAG, "  Cannot load module: " + name);
                 Log.e(TAG, "  The Xposed API classes are compiled into the module's APK.");
                 Log.e(TAG, "  This may cause strange issues and must be fixed by the module developer.");

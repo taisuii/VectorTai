@@ -13,10 +13,10 @@ import android.util.AndroidRuntimeException
 import android.util.ArrayMap
 import android.webkit.WebViewDelegate
 import android.webkit.WebViewFactory
-import dev.android.runtime.ext.XC_MethodHook
-import dev.android.runtime.ext.XC_MethodReplacement
-import dev.android.runtime.ext.XposedBridge
-import dev.android.runtime.ext.XposedHelpers
+import com.android.bridge.TsMethodHook
+import com.android.bridge.TsMethodReplacement
+import com.android.bridge.TsBridge
+import com.android.bridge.TsHelpers
 import hidden.HiddenApiBridge
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -128,12 +128,12 @@ object ParasiticManagerHooker {
     private fun sendBinderToManager(classLoader: ClassLoader, binder: IBinder) {
         runCatching {
                 val clazz =
-                    XposedHelpers.findClass(
+                    TsHelpers.findClass(
                         BuildConfig.ManagerPackageName + ".Constants",
                         classLoader,
                     )
                 val ok =
-                    XposedHelpers.callStaticMethod(
+                    TsHelpers.callStaticMethod(
                         clazz,
                         "setBinder",
                         arrayOf(IBinder::class.java),
@@ -146,30 +146,30 @@ object ParasiticManagerHooker {
 
     private fun hookForManager(managerService: ILSPManagerService) {
         // Hook 1: Swap ApplicationInfo during host binding
-        XposedHelpers.findAndHookMethod(
+        TsHelpers.findAndHookMethod(
             ActivityThread::class.java,
             "handleBindApplication",
             "android.app.ActivityThread\$AppBindData",
-            object : XC_MethodHook() {
+            object : TsMethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam<*>) {
                     logD("ActivityThread#handleBindApplication() starts")
                     val bindData = param.args[0]
                     val hostAppInfo =
-                        XposedHelpers.getObjectField(bindData, "appInfo") as ApplicationInfo
+                        TsHelpers.getObjectField(bindData, "appInfo") as ApplicationInfo
                     val parasiticInfo = getManagerPkgInfo(hostAppInfo)?.applicationInfo
-                    XposedHelpers.setObjectField(bindData, "appInfo", parasiticInfo)
+                    TsHelpers.setObjectField(bindData, "appInfo", parasiticInfo)
                 }
             },
         )
 
         // Hook 2: Inject APK path into the ClassLoader
-        var classLoaderUnhook: XC_MethodHook.Unhook? = null
+        var classLoaderUnhook: TsMethodHook.Unhook? = null
         val classLoaderHook =
-            object : XC_MethodHook() {
+            object : TsMethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam<*>) {
                     val pkgInfo = getManagerPkgInfo(null) ?: return
                     val mAppInfo =
-                        XposedHelpers.getObjectField(param.thisObject, "mApplicationInfo")
+                        TsHelpers.getObjectField(param.thisObject, "mApplicationInfo")
 
                     val managerAppInfo = pkgInfo.applicationInfo!!
 
@@ -178,12 +178,12 @@ object ParasiticManagerHooker {
                         val pathClassLoader = param.result as ClassLoader
 
                         logD("Injecting DEX into LoadedApk ClassLoader: $pathClassLoader")
-                        val pathList = XposedHelpers.getObjectField(pathClassLoader, "pathList")
-                        val dexPaths = XposedHelpers.callMethod(pathList, "getDexPaths") as List<*>
+                        val pathList = TsHelpers.getObjectField(pathClassLoader, "pathList")
+                        val dexPaths = TsHelpers.callMethod(pathList, "getDexPaths") as List<*>
 
                         if (!dexPaths.contains(dexPath)) {
                             Utils.logW("Manager APK not found in ClassLoader, adding manually...")
-                            XposedHelpers.callMethod(pathClassLoader, "addDexPath", dexPath)
+                            TsHelpers.callMethod(pathClassLoader, "addDexPath", dexPath)
                         }
                         sendBinderToManager(pathClassLoader, managerService.asBinder())
                         classLoaderUnhook!!.unhook() // Only need to inject once
@@ -191,7 +191,7 @@ object ParasiticManagerHooker {
                 }
             }
         classLoaderUnhook =
-            XposedHelpers.findAndHookMethod(
+            TsHelpers.findAndHookMethod(
                 LoadedApk::class.java,
                 "getClassLoader",
                 classLoaderHook,
@@ -199,12 +199,12 @@ object ParasiticManagerHooker {
 
         // Hook 3: Activity Lifecycle & Intent Redirection
         val activityClientRecordClass =
-            XposedHelpers.findClass(
+            TsHelpers.findClass(
                 "android.app.ActivityThread\$ActivityClientRecord",
                 ActivityThread::class.java.classLoader,
             )
         val activityHooker =
-            object : XC_MethodHook() {
+            object : TsMethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam<*>) {
                     param.args.forEachIndexed { i, arg ->
                         if (arg is ActivityInfo) {
@@ -255,30 +255,30 @@ object ParasiticManagerHooker {
                     param.args.filterIsInstance<ActivityInfo>().forEach { aInfo ->
                         logD("Restoring state for Activity: ${aInfo.name}")
                         states[aInfo.name]?.let {
-                            XposedHelpers.setObjectField(param.thisObject, "state", it)
+                            TsHelpers.setObjectField(param.thisObject, "state", it)
                         }
                         persistentStates[aInfo.name]?.let {
-                            XposedHelpers.setObjectField(param.thisObject, "persistentState", it)
+                            TsHelpers.setObjectField(param.thisObject, "persistentState", it)
                         }
                     }
                 }
             }
 
-        XposedBridge.hookAllConstructors(activityClientRecordClass, activityHooker)
+        TsBridge.hookAllConstructors(activityClientRecordClass, activityHooker)
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O_MR1) {
             val appThreadClass =
-                XposedHelpers.findClass(
+                TsHelpers.findClass(
                     "android.app.ActivityThread\$ApplicationThread",
                     ActivityThread::class.java.classLoader,
                 )
-            XposedBridge.hookAllMethods(appThreadClass, "scheduleLaunchActivity", activityHooker)
+            TsBridge.hookAllMethods(appThreadClass, "scheduleLaunchActivity", activityHooker)
         }
 
         // Hook 4: Ignore Receivers (Manager doesn't need to handle host receivers)
-        XposedBridge.hookAllMethods(
+        TsBridge.hookAllMethods(
             ActivityThread::class.java,
             "handleReceiver",
-            object : XC_MethodReplacement() {
+            object : TsMethodReplacement() {
                 override fun replaceHookedMethod(param: MethodHookParam<*>): Any? {
                     param.args.filterIsInstance<BroadcastReceiver.PendingResult>().forEach {
                         it.finish()
@@ -289,10 +289,10 @@ object ParasiticManagerHooker {
         )
 
         // Hook 5: Provider Context Spoofing
-        XposedBridge.hookAllMethods(
+        TsBridge.hookAllMethods(
             ActivityThread::class.java,
             "installProvider",
-            object : XC_MethodHook() {
+            object : TsMethodHook() {
                 private var originalContext: Context? = null
 
                 override fun beforeHookedMethod(param: MethodHookParam<*>) {
@@ -323,16 +323,16 @@ object ParasiticManagerHooker {
                             val originalPkgInfo =
                                 ActivityThread.currentActivityThread()
                                     .getPackageInfoNoCheck(info.applicationInfo, compatibilityInfo)
-                            XposedHelpers.setObjectField(
+                            TsHelpers.setObjectField(
                                 originalPkgInfo,
                                 "mPackageName",
                                 managerPackage,
                             )
 
                             val contextImplClass =
-                                XposedHelpers.findClass("android.app.ContextImpl", null)
+                                TsHelpers.findClass("android.app.ContextImpl", null)
                             originalContext =
-                                XposedHelpers.callStaticMethod(
+                                TsHelpers.callStaticMethod(
                                     contextImplClass,
                                     "createAppContext",
                                     ActivityThread.currentActivityThread(),
@@ -347,20 +347,20 @@ object ParasiticManagerHooker {
         )
 
         // Hook 6: WebView initialization within Parasitic process
-        XposedHelpers.findAndHookMethod(
+        TsHelpers.findAndHookMethod(
             WebViewFactory::class.java,
             "getProvider",
-            object : XC_MethodReplacement() {
+            object : TsMethodReplacement() {
                 override fun replaceHookedMethod(param: MethodHookParam<*>): Any? {
                     val existing =
-                        XposedHelpers.getStaticObjectField(
+                        TsHelpers.getStaticObjectField(
                             WebViewFactory::class.java,
                             "sProviderInstance",
                         )
                     if (existing != null) return existing
 
                     val providerClass =
-                        XposedHelpers.callStaticMethod(
+                        TsHelpers.callStaticMethod(
                             WebViewFactory::class.java,
                             "getProviderClass",
                         ) as Class<*>
@@ -375,7 +375,7 @@ object ParasiticManagerHooker {
                                 isAccessible = true
                             }
                         val instance = staticFactory.invoke(null, delegateCtor.newInstance())
-                        XposedHelpers.setStaticObjectField(
+                        TsHelpers.setStaticObjectField(
                             WebViewFactory::class.java,
                             "sProviderInstance",
                             instance,
@@ -392,13 +392,13 @@ object ParasiticManagerHooker {
 
         // Hook 7: State Capture on Stop
         val stateCaptureHooker =
-            object : XC_MethodHook() {
+            object : TsMethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam<*>) {
                     runCatching {
                             var record = param.args[0]
                             if (record is IBinder) {
                                 val activities =
-                                    XposedHelpers.getObjectField(param.thisObject, "mActivities")
+                                    TsHelpers.getObjectField(param.thisObject, "mActivities")
                                         as ArrayMap<*, *>
                                 record = activities[record] ?: return
                             }
@@ -407,14 +407,14 @@ object ParasiticManagerHooker {
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
                                     "callActivityOnSaveInstanceState"
                                 else "callCallActivityOnSaveInstanceState"
-                            XposedHelpers.callMethod(param.thisObject, saveMethod, record)
+                            TsHelpers.callMethod(param.thisObject, saveMethod, record)
 
-                            val state = XposedHelpers.getObjectField(record, "state") as? Bundle
+                            val state = TsHelpers.getObjectField(record, "state") as? Bundle
                             val pState =
-                                XposedHelpers.getObjectField(record, "persistentState")
+                                TsHelpers.getObjectField(record, "persistentState")
                                     as? PersistableBundle
                             val aInfo =
-                                XposedHelpers.getObjectField(record, "activityInfo") as ActivityInfo
+                                TsHelpers.getObjectField(record, "activityInfo") as ActivityInfo
 
                             state?.let { states[aInfo.name] = it }
                             pState?.let { persistentStates[aInfo.name] = it }
@@ -423,13 +423,13 @@ object ParasiticManagerHooker {
                         .onFailure { logE("Failed to save activity state", it) }
                 }
             }
-        XposedBridge.hookAllMethods(
+        TsBridge.hookAllMethods(
             ActivityThread::class.java,
             "performStopActivityInner",
             stateCaptureHooker,
         )
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O_MR1) {
-            XposedHelpers.findAndHookMethod(
+            TsHelpers.findAndHookMethod(
                 ActivityThread::class.java,
                 "performDestroyActivity",
                 IBinder::class.java,

@@ -1,9 +1,9 @@
-package dev.android.runtime.ext;
+package com.android.bridge;
 
 import android.content.res.XResources;
 
-import dev.android.runtime.ext.callbacks.XC_InitPackageResources;
-import dev.android.runtime.ext.callbacks.XC_InitPackageResources.InitPackageResourcesParam;
+import com.android.bridge.callbacks.TsInitPackageResources;
+import com.android.bridge.callbacks.TsInitPackageResources.InitPackageResourcesParam;
 
 /**
  * Get notified when the resources for an app are initialized.
@@ -12,7 +12,7 @@ import dev.android.runtime.ext.callbacks.XC_InitPackageResources.InitPackageReso
  * <p>This interface should be implemented by the module's main class. Xposed will take care of
  * registering it as a callback automatically.
  */
-public interface IXposedHookInitPackageResources extends IXposedMod {
+public interface IInitPackageResourcesHook extends IModuleHook {
     /**
      * This method is called when resources for an app are being initialized.
      * Modules can call special methods of the {@link XResources} class in order to replace resources.
@@ -23,9 +23,9 @@ public interface IXposedHookInitPackageResources extends IXposedMod {
     void handleInitPackageResources(InitPackageResourcesParam resparam) throws Throwable;
 
     /** @hide */
-    final class Wrapper extends XC_InitPackageResources {
-        private final IXposedHookInitPackageResources instance;
-        public Wrapper(IXposedHookInitPackageResources instance) {
+    final class Wrapper extends TsInitPackageResources {
+        private final IInitPackageResourcesHook instance;
+        public Wrapper(IInitPackageResourcesHook instance) {
             this.instance = instance;
         }
         @Override

@@ -1,7 +1,7 @@
-package dev.android.runtime.ext;
+package com.android.bridge;
 
 /**
  * Marker interface for Xposed modules. Cannot be implemented directly.
  */
-/* package */ interface IXposedMod {
+/* package */ interface IModuleHook {
 }
