@@ -1,4 +1,4 @@
-package de.robv.android.xposed;
+package dev.android.runtime.ext;
 
 import android.content.res.AssetManager;
 import android.content.res.Resources;

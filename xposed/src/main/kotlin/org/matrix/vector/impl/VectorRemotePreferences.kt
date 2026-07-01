@@ -4,7 +4,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.RemoteException
 import android.util.ArraySet
-import io.github.libxposed.api.error.XposedFrameworkError
+import dev.android.runtime.api.error.XposedFrameworkError
 import java.util.TreeMap
 import java.util.concurrent.ConcurrentHashMap
 import org.lsposed.lspd.service.ILSPInjectedModuleService

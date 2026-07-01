@@ -187,7 +187,7 @@ object FileSystem {
                 } ?: emptyMap()
 
             val targetApi = props["targetApiVersion"]?.toIntOrNull() ?: 0
-            val hasLegacyFile = zip.getEntry("assets/xposed_init") != null
+            val hasLegacyFile = zip.getEntry("assets/rt_init") != null
 
             // Determine Loading Strategy based on Priority: API 101+ > Legacy > API 100
             val strategy =
@@ -218,7 +218,7 @@ object FileSystem {
               }
               "LEGACY" -> {
                 isLegacy = true
-                readList("assets/xposed_init", moduleClassNames)
+                readList("assets/rt_init", moduleClassNames)
                 readList("assets/native_init", moduleLibraryNames)
               }
               "UNSUPPORTED" -> {

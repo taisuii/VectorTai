@@ -6,8 +6,8 @@ import org.matrix.vector.impl.core.VectorStartup;
 import org.matrix.vector.impl.di.VectorBootstrap;
 import org.matrix.vector.legacy.LegacyDelegateImpl;
 
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedInit;
+import dev.android.runtime.ext.XposedBridge;
+import dev.android.runtime.ext.XposedInit;
 
 public class Startup {
 

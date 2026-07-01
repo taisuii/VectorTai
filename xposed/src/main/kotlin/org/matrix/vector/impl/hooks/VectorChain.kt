@@ -1,8 +1,8 @@
 package org.matrix.vector.impl.hooks
 
-import io.github.libxposed.api.XposedInterface
-import io.github.libxposed.api.XposedInterface.Chain
-import io.github.libxposed.api.XposedInterface.ExceptionMode
+import dev.android.runtime.api.XposedInterface
+import dev.android.runtime.api.XposedInterface.Chain
+import dev.android.runtime.api.XposedInterface.ExceptionMode
 import java.lang.reflect.Executable
 import org.lsposed.lspd.util.Utils
 

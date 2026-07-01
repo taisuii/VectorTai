@@ -1,5 +1,5 @@
 # Preserve the libxposed public API surface for module developers
--keep class io.github.libxposed.** { *; }
+-keep class dev.android.runtime.** { *; }
 
 # Preserve all native methods (HookBridge, ResourcesHook, NativeAPI, etc.)
 -keepclasseswithmembers,includedescriptorclasses class * {

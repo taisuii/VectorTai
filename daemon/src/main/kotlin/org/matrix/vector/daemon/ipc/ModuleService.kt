@@ -7,8 +7,8 @@ import android.os.Bundle
 import android.os.ParcelFileDescriptor
 import android.os.RemoteException
 import android.util.Log
-import io.github.libxposed.service.IXposedScopeCallback
-import io.github.libxposed.service.IXposedService
+import dev.android.runtime.service.IXposedScopeCallback
+import dev.android.runtime.service.IXposedService
 import java.io.Serializable
 import java.util.Collections
 import java.util.WeakHashMap

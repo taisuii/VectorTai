@@ -3,8 +3,8 @@ package org.matrix.vector.impl
 import android.content.pm.ApplicationInfo
 import android.os.Build
 import androidx.annotation.RequiresApi
-import io.github.libxposed.api.XposedModule
-import io.github.libxposed.api.XposedModuleInterface.*
+import dev.android.runtime.api.XposedModule
+import dev.android.runtime.api.XposedModuleInterface.*
 import java.util.concurrent.ConcurrentHashMap
 import org.lsposed.lspd.util.Utils.Log
 

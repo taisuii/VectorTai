@@ -1,7 +1,7 @@
-package de.robv.android.xposed;
+package dev.android.runtime.ext;
 
-import de.robv.android.xposed.services.BaseService;
-import de.robv.android.xposed.services.DirectAccessService;
+import dev.android.runtime.ext.services.BaseService;
+import dev.android.runtime.ext.services.DirectAccessService;
 
 /**
  * A helper to work with (or without) SELinux, abstracting much of its big complexity.

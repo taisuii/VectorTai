@@ -1,6 +1,6 @@
 package org.matrix.vector.impl.hookers
 
-import io.github.libxposed.api.XposedInterface
+import dev.android.runtime.api.XposedInterface
 import org.matrix.vector.impl.VectorLifecycleManager
 import org.matrix.vector.impl.core.VectorDeopter
 import org.matrix.vector.impl.di.VectorBootstrap

@@ -1,4 +1,4 @@
-package de.robv.android.xposed.callbacks;
+package dev.android.runtime.ext.callbacks;
 
 import android.os.Bundle;
 
@@ -6,7 +6,7 @@ import org.matrix.vector.impl.core.VectorDeopter;
 
 import java.io.Serializable;
 
-import de.robv.android.xposed.XposedBridge;
+import dev.android.runtime.ext.XposedBridge;
 
 /**
  * Base class for Xposed callbacks.

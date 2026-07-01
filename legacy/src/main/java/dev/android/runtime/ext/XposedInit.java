@@ -1,11 +1,11 @@
-package de.robv.android.xposed;
+package dev.android.runtime.ext;
 
-import static de.robv.android.xposed.XposedBridge.hookAllMethods;
-import static de.robv.android.xposed.XposedHelpers.callMethod;
-import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
-import static de.robv.android.xposed.XposedHelpers.getObjectField;
-import static de.robv.android.xposed.XposedHelpers.getParameterIndexByType;
-import static de.robv.android.xposed.XposedHelpers.setStaticObjectField;
+import static dev.android.runtime.ext.XposedBridge.hookAllMethods;
+import static dev.android.runtime.ext.XposedHelpers.callMethod;
+import static dev.android.runtime.ext.XposedHelpers.findAndHookMethod;
+import static dev.android.runtime.ext.XposedHelpers.getObjectField;
+import static dev.android.runtime.ext.XposedHelpers.getParameterIndexByType;
+import static dev.android.runtime.ext.XposedHelpers.setStaticObjectField;
 
 import android.app.ActivityThread;
 import android.content.pm.ApplicationInfo;
@@ -38,8 +38,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import de.robv.android.xposed.callbacks.XC_InitPackageResources;
-import de.robv.android.xposed.callbacks.XCallback;
+import dev.android.runtime.ext.callbacks.XC_InitPackageResources;
+import dev.android.runtime.ext.callbacks.XCallback;
 import hidden.HiddenApiBridge;
 
 public final class XposedInit {
@@ -278,7 +278,7 @@ public final class XposedInit {
 
     /**
      * Load a module from an APK by calling the init(String) method for all classes defined
-     * in <code>assets/xposed_init</code>.
+     * in <code>assets/rt_init</code>.
      */
     private static boolean loadModule(String name, String apk, PreLoadedApk file) {
         Log.v(TAG, "Loading legacy module " + name + " from " + apk);

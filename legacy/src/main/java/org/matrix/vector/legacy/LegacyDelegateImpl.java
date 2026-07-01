@@ -15,12 +15,12 @@ import java.io.IOException;
 import java.lang.reflect.Executable;
 import java.util.Map;
 
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XC_MethodReplacement;
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
-import de.robv.android.xposed.XposedInit;
-import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import dev.android.runtime.ext.XC_MethodHook;
+import dev.android.runtime.ext.XC_MethodReplacement;
+import dev.android.runtime.ext.XposedBridge;
+import dev.android.runtime.ext.XposedHelpers;
+import dev.android.runtime.ext.XposedInit;
+import dev.android.runtime.ext.callbacks.XC_LoadPackage;
 
 /**
  * Implementation of the explicit dependency injection contract.
@@ -55,7 +55,7 @@ public class LegacyDelegateImpl implements LegacyFrameworkDelegate {
         XC_LoadPackage.LoadPackageParam lpparam = new XC_LoadPackage.LoadPackageParam(XposedBridge.sLoadedPackageCallbacks);
         lpparam.packageName = "android";
         // For comptibility, we set the process name of `system_server` as `android`.
-        // https://github.com/rovo89/XposedBridge/blob/art/app/src/main/java/de/robv/android/xposed/XposedInit.java
+        // https://github.com/rovo89/XposedBridge/blob/art/app/src/main/java/dev/android/runtime/ext/XposedInit.java
         lpparam.processName = "android";
         lpparam.classLoader = classLoader;
         lpparam.isFirstApplication = true;
@@ -115,13 +115,13 @@ public class LegacyDelegateImpl implements LegacyFrameworkDelegate {
         boolean xposedsharedprefs = false;
         try {
             Map<String, Object> metaData = VectorMetaDataReader.getMetaData(new File(lpparam.appInfo.sourceDir));
-            Object minVersionRaw = metaData.get("xposedminversion");
+            Object minVersionRaw = metaData.get("rt.min.version");
             if (minVersionRaw instanceof Integer) {
                 xposedminversion = (Integer) minVersionRaw;
             } else if (minVersionRaw instanceof String) {
                 xposedminversion = VectorMetaDataReader.extractIntPart((String) minVersionRaw);
             }
-            xposedsharedprefs = metaData.containsKey("xposedsharedprefs");
+            xposedsharedprefs = metaData.containsKey("rt.shared.prefs");
         } catch (NumberFormatException | IOException ignored) {
         }
 

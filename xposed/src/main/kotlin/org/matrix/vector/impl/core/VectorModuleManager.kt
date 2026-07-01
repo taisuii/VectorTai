@@ -2,8 +2,8 @@ package org.matrix.vector.impl.core
 
 import android.os.Build
 import android.os.Process
-import io.github.libxposed.api.XposedModule
-import io.github.libxposed.api.XposedModuleInterface.ModuleLoadedParam
+import dev.android.runtime.api.XposedModule
+import dev.android.runtime.api.XposedModuleInterface.ModuleLoadedParam
 import java.io.File
 import org.lsposed.lspd.models.Module
 import org.lsposed.lspd.util.Utils.Log

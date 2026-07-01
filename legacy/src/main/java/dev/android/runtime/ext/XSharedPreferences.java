@@ -1,4 +1,4 @@
-package de.robv.android.xposed;
+package dev.android.runtime.ext;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import de.robv.android.xposed.services.FileResult;
+import dev.android.runtime.ext.services.FileResult;
 
 /**
  * This class is basically the same as SharedPreferencesImpl from AOSP, but
@@ -161,15 +161,15 @@ public final class XSharedPreferences implements SharedPreferences {
             boolean xposedsharedprefs = false;
             try {
                 Map<String, Object> metaData = VectorMetaDataReader.getMetaData(new File(m.get()));
-                isModule = metaData.containsKey("xposedminversion");
+                isModule = metaData.containsKey("rt.min.version");
                 if (isModule) {
-                    Object minVersionRaw = metaData.get("xposedminversion");
+                    Object minVersionRaw = metaData.get("rt.min.version");
                     if (minVersionRaw instanceof Integer) {
                         xposedminversion = (Integer) minVersionRaw;
                     } else if (minVersionRaw instanceof String) {
                         xposedminversion = VectorMetaDataReader.extractIntPart((String) minVersionRaw);
                     }
-                    xposedsharedprefs = metaData.containsKey("xposedsharedprefs");
+                    xposedsharedprefs = metaData.containsKey("rt.shared.prefs");
                 }
             } catch (NumberFormatException | IOException e) {
                 Log.w(TAG, "Apk parser fails: " + e);

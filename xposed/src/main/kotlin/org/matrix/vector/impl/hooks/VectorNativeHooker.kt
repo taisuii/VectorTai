@@ -1,11 +1,11 @@
 package org.matrix.vector.impl.hooks
 
-import io.github.libxposed.api.XposedInterface
-import io.github.libxposed.api.XposedInterface.ExceptionMode
-import io.github.libxposed.api.XposedInterface.HookBuilder
-import io.github.libxposed.api.XposedInterface.HookHandle
-import io.github.libxposed.api.XposedInterface.Hooker
-import io.github.libxposed.api.error.HookFailedError
+import dev.android.runtime.api.XposedInterface
+import dev.android.runtime.api.XposedInterface.ExceptionMode
+import dev.android.runtime.api.XposedInterface.HookBuilder
+import dev.android.runtime.api.XposedInterface.HookHandle
+import dev.android.runtime.api.XposedInterface.Hooker
+import dev.android.runtime.api.error.HookFailedError
 import java.lang.reflect.Executable
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method

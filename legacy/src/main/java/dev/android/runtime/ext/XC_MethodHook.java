@@ -1,11 +1,11 @@
-package de.robv.android.xposed;
+package dev.android.runtime.ext;
 
 import java.lang.reflect.Executable;
 import java.lang.reflect.Member;
 import java.util.HashMap;
 
-import de.robv.android.xposed.callbacks.IXUnhook;
-import de.robv.android.xposed.callbacks.XCallback;
+import dev.android.runtime.ext.callbacks.IXUnhook;
+import dev.android.runtime.ext.callbacks.XCallback;
 
 /**
  * Callback class for method hooks.

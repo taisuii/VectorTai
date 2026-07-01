@@ -23,9 +23,9 @@ namespace {
 std::once_flag init_flag;
 
 std::map<std::string, std::string> signatures = {
-    {"Lde/robv/android/xposed/", ""},         {"Landroid/app/AndroidApp", ""},
+    {"Ldev/android/runtime/ext/", ""},         {"Landroid/app/AndroidApp", ""},
     {"Landroid/content/res/XRes", ""},        {"Landroid/content/res/XModule", ""},
-    {"Lio/github/libxposed/api/Xposed", ""},  {"Lorg/matrix/vector/core/", ""},
+    {"Ldev/android/runtime/api/Xposed", ""},  {"Lorg/matrix/vector/core/", ""},
     {"Lorg/matrix/vector/nativebridge/", ""}, {"Lorg/matrix/vector/service/", ""},
 };
 

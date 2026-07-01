@@ -119,7 +119,7 @@ public final class ModuleUtil {
     }
 
     public static boolean isLegacyModule(ApplicationInfo info) {
-        return info.metaData != null && info.metaData.containsKey("xposedminversion");
+        return info.metaData != null && info.metaData.containsKey("rt.min.version");
     }
 
     synchronized public void reloadInstalledModules() {
@@ -278,7 +278,7 @@ public final class ModuleUtil {
             legacy = modernModuleApk == null;
 
             if (legacy) {
-                Object minVersionRaw = app.metaData.get("xposedminversion");
+                Object minVersionRaw = app.metaData.get("rt.min.version");
                 if (minVersionRaw instanceof Integer) {
                     minVersion = (Integer) minVersionRaw;
                 } else if (minVersionRaw instanceof String) {
@@ -355,11 +355,11 @@ public final class ModuleUtil {
             if (scopeList != null) return scopeList;
             List<String> list = null;
             try {
-                int scopeListResourceId = app.metaData.getInt("xposedscope");
+                int scopeListResourceId = app.metaData.getInt("rt.scope");
                 if (scopeListResourceId != 0) {
                     list = Arrays.asList(pm.getResourcesForApplication(app).getStringArray(scopeListResourceId));
                 } else {
-                    String scopeListString = app.metaData.getString("xposedscope");
+                    String scopeListString = app.metaData.getString("rt.scope");
                     if (scopeListString != null)
                         list = Arrays.asList(scopeListString.split(";"));
                 }

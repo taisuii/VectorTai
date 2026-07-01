@@ -14,7 +14,7 @@ import android.provider.Telephony
 import android.telephony.TelephonyManager
 import android.util.Log
 import hidden.HiddenApiBridge
-import io.github.libxposed.service.IXposedScopeCallback
+import dev.android.runtime.service.IXposedScopeCallback
 import kotlinx.coroutines.launch
 import org.lsposed.lspd.models.Application
 import org.lsposed.lspd.service.IDaemonService
@@ -252,7 +252,7 @@ object VectorService : IDaemonService.Stub() {
         }
     var isXposedModule =
         appInfo != null &&
-            (appInfo.metaData?.containsKey("xposedminversion") == true ||
+            (appInfo.metaData?.containsKey("rt.min.version") == true ||
                 ConfigCache.getModuleApkPath(appInfo) != null)
 
     when (action) {

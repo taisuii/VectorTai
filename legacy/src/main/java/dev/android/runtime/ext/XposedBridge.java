@@ -1,4 +1,4 @@
-package de.robv.android.xposed;
+package dev.android.runtime.ext;
 
 import android.app.ActivityThread;
 import android.content.res.Resources;
@@ -22,9 +22,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import de.robv.android.xposed.callbacks.XC_InitPackageResources;
-import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import io.github.libxposed.api.XposedInterface;
+import dev.android.runtime.ext.callbacks.XC_InitPackageResources;
+import dev.android.runtime.ext.callbacks.XC_LoadPackage;
+import dev.android.runtime.api.XposedInterface;
 
 /**
  * This class contains most of Xposed's central logic, such as initialization and callbacks used by

@@ -3,10 +3,10 @@ package android.content.res;
 import android.app.AndroidAppHelper;
 import android.util.DisplayMetrics;
 
-import de.robv.android.xposed.IXposedHookInitPackageResources;
-import de.robv.android.xposed.IXposedHookZygoteInit;
-import de.robv.android.xposed.IXposedHookZygoteInit.StartupParam;
-import de.robv.android.xposed.callbacks.XC_InitPackageResources.InitPackageResourcesParam;
+import dev.android.runtime.ext.IXposedHookInitPackageResources;
+import dev.android.runtime.ext.IXposedHookZygoteInit;
+import dev.android.runtime.ext.IXposedHookZygoteInit.StartupParam;
+import dev.android.runtime.ext.callbacks.XC_InitPackageResources.InitPackageResourcesParam;
 import hidden.HiddenApiBridge;
 
 /**

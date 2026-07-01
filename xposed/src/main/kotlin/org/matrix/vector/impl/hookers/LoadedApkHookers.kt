@@ -3,7 +3,7 @@ package org.matrix.vector.impl.hookers
 import android.content.pm.ApplicationInfo
 import android.os.Build
 import androidx.annotation.RequiresApi
-import io.github.libxposed.api.XposedInterface
+import dev.android.runtime.api.XposedInterface
 import java.util.Collections
 import java.util.WeakHashMap
 import java.util.concurrent.ConcurrentHashMap

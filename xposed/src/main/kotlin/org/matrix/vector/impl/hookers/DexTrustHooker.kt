@@ -1,7 +1,7 @@
 package org.matrix.vector.impl.hookers
 
 import android.os.Build
-import io.github.libxposed.api.XposedInterface
+import dev.android.runtime.api.XposedInterface
 import org.matrix.vector.nativebridge.HookBridge
 
 /**

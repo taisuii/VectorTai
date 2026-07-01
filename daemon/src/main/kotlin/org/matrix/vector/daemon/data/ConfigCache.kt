@@ -418,7 +418,7 @@ object ConfigCache {
       runCatching {
             java.util.zip.ZipFile(apk).use { zip ->
               zip.getEntry("META-INF/xposed/java_init.list") != null ||
-                  zip.getEntry("assets/xposed_init") != null
+                  zip.getEntry("assets/rt_init") != null
             }
           }
           .getOrDefault(false)

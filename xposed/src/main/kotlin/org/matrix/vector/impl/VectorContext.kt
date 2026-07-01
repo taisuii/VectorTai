@@ -3,8 +3,8 @@ package org.matrix.vector.impl
 import android.content.SharedPreferences
 import android.content.pm.ApplicationInfo
 import android.os.ParcelFileDescriptor
-import io.github.libxposed.api.XposedInterface
-import io.github.libxposed.api.XposedModuleInterface.*
+import dev.android.runtime.api.XposedInterface
+import dev.android.runtime.api.XposedModuleInterface.*
 import java.io.FileNotFoundException
 import java.lang.reflect.Constructor
 import java.lang.reflect.Executable

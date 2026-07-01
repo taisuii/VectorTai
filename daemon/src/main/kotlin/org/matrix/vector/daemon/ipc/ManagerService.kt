@@ -20,7 +20,7 @@ import android.os.SystemProperties
 import android.util.Log
 import android.view.IWindowManager
 import hidden.HiddenApiBridge
-import io.github.libxposed.service.IXposedService
+import dev.android.runtime.service.IXposedService
 import java.io.File
 import java.util.concurrent.CountDownLatch
 import org.lsposed.lspd.ILSPManagerService

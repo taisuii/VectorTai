@@ -16,7 +16,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import io.github.libxposed.service.IXposedScopeCallback
+import dev.android.runtime.service.IXposedScopeCallback
 import java.util.UUID
 import org.matrix.vector.daemon.BuildConfig
 import org.matrix.vector.daemon.R

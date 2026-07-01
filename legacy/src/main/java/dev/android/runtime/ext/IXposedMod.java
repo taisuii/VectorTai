@@ -1,4 +1,4 @@
-package de.robv.android.xposed;
+package dev.android.runtime.ext;
 
 /**
  * Marker interface for Xposed modules. Cannot be implemented directly.

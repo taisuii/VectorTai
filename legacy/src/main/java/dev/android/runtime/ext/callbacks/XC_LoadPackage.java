@@ -1,4 +1,4 @@
-package de.robv.android.xposed.callbacks;
+package dev.android.runtime.ext.callbacks;
 
 import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
@@ -8,9 +8,9 @@ import androidx.annotation.Nullable;
 
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import de.robv.android.xposed.IXposedHookLoadPackage;
-import de.robv.android.xposed.XposedBridge.CopyOnWriteSortedSet;
-import io.github.libxposed.api.XposedModuleInterface;
+import dev.android.runtime.ext.IXposedHookLoadPackage;
+import dev.android.runtime.ext.XposedBridge.CopyOnWriteSortedSet;
+import dev.android.runtime.api.XposedModuleInterface;
 
 /**
  * This class is only used for internal purposes, except for the {@link LoadPackageParam}
