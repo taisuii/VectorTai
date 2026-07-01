@@ -80,6 +80,7 @@ If you encounter issues or wish to help improve the project, please refer to the
 
 Vector supports both legacy and modern hooking standards to ensure broad module compatibility.
 
+*   **[Module Development / 模块开发](docs/MODULE_API.md)** — how to build modules against the de-fingerprinted API
 *   [Legacy Xposed API](https://api.xposed.info/)
 *   [Modern libxposed API](https://libxposed.github.io/api/)
 *   [Xposed Module Repository](https://github.com/Xposed-Modules-Repo)
